@@ -43,8 +43,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Abdullah Store server running on http://localhost:${PORT}`);
-  console.log(`📦 API available at http://localhost:${PORT}/api`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 Abdullah Store server running on http://0.0.0.0:${PORT}`);
+  console.log(`📦 API available at http://0.0.0.0:${PORT}/api`);
   console.log(`🔑 Admin login: admin@abdullahstore.com / Admin@123\n`);
 });
