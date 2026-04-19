@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abdullah Store — Premium Online Shopping</title>
+  <meta name="description" content="Shop premium products at Abdullah Store. Electronics, clothing, home goods, sports equipment and more with fast delivery across Pakistan.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <a href="/" class="navbar-brand">
+    <div class="brand-icon">🛍️</div>
+    Abdullah<span>Store</span>
+  </a>
+  <ul class="navbar-nav" id="navbar-nav">
+    <li><a href="/" class="nav-link active">Home</a></li>
+    <li><a href="/products.html" class="nav-link">Products</a></li>
+    <li><a href="/products.html?category=1" class="nav-link">Electronics</a></li>
+    <li><a href="/products.html?category=2" class="nav-link">Clothing</a></li>
+    <li><a href="/dashboard.html" class="nav-link" id="nav-admin-link" style="display:none">Dashboard</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+    <div id="nav-user-menu" style="display:none; align-items:center; gap:10px">
+      <span style="color:var(--text-secondary);font-size:.9rem">Hi, <strong id="nav-user-name" style="color:var(--gold)"></strong></span>
+      <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+    <a href="/login.html" class="btn-nav-login" id="nav-login-btn">Login</a>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🎉 New Arrivals — Up to 40% OFF</div>
+    <h1 class="hero-title">
+      Shop Premium Products
+      <span class="highlight">At Best Prices</span>
+    </h1>
+    <p class="hero-desc">Discover thousands of products across electronics, fashion, home & more. Fast delivery, easy returns, and unbeatable deals — only at Abdullah Store.</p>
+    <div class="hero-actions">
+      <a href="/products.html" class="btn btn-primary btn-lg">Shop Now →</a>
+      <a href="/products.html?featured=1" class="btn btn-secondary btn-lg">Featured Deals</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-number">20+</div><div class="stat-label">Products</div></div>
+      <div class="stat-item"><div class="stat-number">5</div><div class="stat-label">Categories</div></div>
+      <div class="stat-item"><div class="stat-number">99%</div><div class="stat-label">Happy Customers</div></div>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600" alt="Shopping" style="border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,0.5)">
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Browse By</div>
+      <h2 class="section-title">Shop All Categories</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="categories-grid" id="categories-grid">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section" style="background: radial-gradient(ellipse at 50% 50%, rgba(245,166,35,0.04) 0%, transparent 70%)">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Handpicked</div>
+      <h2 class="section-title">Featured Products</h2>
+      <p class="section-desc">Our top picked and best-selling products, curated just for you.</p>
+      <div class="divider"></div>
+    </div>
+    <div class="products-grid" id="featured-grid">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+    <div style="text-align:center; margin-top:40px">
+      <a href="/products.html" class="btn btn-secondary btn-lg">View All Products →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Promo Banner -->
+<section class="section">
+  <div class="container">
+    <div class="promo-banner">
+      <div>
+        <div class="promo-tag">⚡ Limited Time Offer</div>
+        <h2 class="promo-title">Up to 40% Off on Electronics</h2>
+        <p class="promo-desc">Shop the latest gadgets, headphones, smartwatches and more at massive discounts.</p>
+        <a href="/products.html?category=1" class="btn btn-primary" style="margin-top:20px">Shop Electronics →</a>
+      </div>
+      <div style="font-size:8rem; opacity:0.4">💻</div>
+    </div>
+  </div>
+</section>
+
+<!-- All Products -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Our Store</div>
+      <h2 class="section-title">Latest Products</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="products-grid" id="all-products-grid">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="section">
+  <div class="container">
+    <div class="card" style="text-align:center; max-width:600px; margin:0 auto; background:linear-gradient(135deg,#1a1209,#261c0a); border-color:rgba(245,166,35,0.3)">
+      <div style="font-size:2.5rem; margin-bottom:12px">📧</div>
+      <h3 style="font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:10px">Get Exclusive Deals</h3>
+      <p style="color:var(--text-secondary); margin-bottom:24px">Subscribe to our newsletter and get 10% off your first order plus exclusive deals.</p>
+      <div style="display:flex; gap:12px; max-width:400px; margin:0 auto">
+        <input type="email" class="form-control" placeholder="Enter your email..." id="newsletter-email">
+        <button class="btn btn-primary" onclick="subscribeNewsletter()">Subscribe</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="navbar-brand" style="position:static">
+        <div class="brand-icon">🛍️</div>
+        Abdullah<span style="color:var(--text-primary)">Store</span>
+      </div>
+      <p class="footer-brand-desc">Your one-stop destination for premium products across Pakistan. Quality guaranteed, prices unmatched.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-link">📘</a>
+        <a href="#" class="social-link">📸</a>
+        <a href="#" class="social-link">🐦</a>
+        <a href="#" class="social-link">▶️</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Quick Links</div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/products.html">All Products</a>
+        <a href="/cart.html">My Cart</a>
+        <a href="/login.html">Login / Register</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Categories</div>
+      <div class="footer-links">
+        <a href="/products.html?category=1">Electronics</a>
+        <a href="/products.html?category=2">Clothing</a>
+        <a href="/products.html?category=3">Home & Living</a>
+        <a href="/products.html?category=4">Sports</a>
+        <a href="/products.html?category=5">Books</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Contact</div>
+      <div class="footer-links">
+        <a href="mailto:info@abdullahstore.com">📧 info@abdullahstore.com</a>
+        <a href="tel:+923001234567">📞 +92 300 123 4567</a>
+        <a href="#">📍 Lahore, Pakistan</a>
+        <a href="#">🕐 Mon–Sat: 9am–9pm</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Abdullah Store. All rights reserved.</span>
+    <span>Made with ❤️ in Pakistan 🇵🇰</span>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+  async function loadCategories() {
+    try {
+      const cats = await api.get('/categories');
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = cats.map(c => `
+        <div class="category-card" onclick="window.location='/products.html?category=${c.id}'">
+          <div class="category-icon">${c.icon}</div>
+          <div class="category-name">${c.name}</div>
+          <div class="category-count">View Products →</div>
+        </div>
+      `).join('');
+    } catch (err) {
+      document.getElementById('categories-grid').innerHTML = '<p style="color:var(--text-muted)">Failed to load categories</p>';
+    }
+  }
+
+  async function loadFeatured() {
+    try {
+      const products = await api.get('/products?featured=1&sort=rating');
+      const grid = document.getElementById('featured-grid');
+      if (!products.length) { grid.innerHTML = '<p style="color:var(--text-muted)">No featured products</p>'; return; }
+      grid.innerHTML = products.slice(0, 8).map(p => renderProductCard(p)).join('');
+    } catch { document.getElementById('featured-grid').innerHTML = '<p style="color:var(--text-muted)">Failed to load products</p>'; }
+  }
+
+  async function loadAll() {
+    try {
+      const products = await api.get('/products?sort=newest');
+      const grid = document.getElementById('all-products-grid');
+      if (!products.length) { grid.innerHTML = '<p style="color:var(--text-muted)">No products found</p>'; return; }
+      grid.innerHTML = products.slice(0, 12).map(p => renderProductCard(p)).join('');
+    } catch { document.getElementById('all-products-grid').innerHTML = '<p style="color:var(--text-muted)">Failed to load products</p>'; }
+  }
+
+  function subscribeNewsletter() {
+    const email = document.getElementById('newsletter-email').value;
+    if (!email || !email.includes('@')) { showToast('Please enter a valid email', 'error'); return; }
+    showToast('🎉 Subscribed! Check your email for 10% off code', 'success', 5000);
+    document.getElementById('newsletter-email').value = '';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCategories();
+    loadFeatured();
+    loadAll();
+  });
+</script>
+</body>
+</html>

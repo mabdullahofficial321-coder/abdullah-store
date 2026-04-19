@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment variables (keep secrets safe)
+.env
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Windows files
+start.bat
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store

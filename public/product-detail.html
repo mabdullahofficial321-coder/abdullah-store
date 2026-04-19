@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail — Abdullah Store</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <style>
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 80px;
+            align-items: start;
+        }
+
+        @media(max-width: 800px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .product-main-img {
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--dark-card2);
+            aspect-ratio: 4/3;
+        }
+
+        .product-main-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-detail-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(245, 166, 35, 0.1);
+            color: var(--gold);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .product-detail-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .product-detail-meta {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .detail-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .detail-original {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+
+        .stock-status {
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        .in-stock {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .out-stock {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .product-desc {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .product-action-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .related-products {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 80px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="brand-icon">🛍️</div>Abdullah<span>Store</span>
+        </a>
+        <ul class="navbar-nav" id="navbar-nav">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/products.html" class="nav-link">Products</a></li>
+            <li><a href="/dashboard.html" class="nav-link" id="nav-admin-link" style="display:none">Dashboard</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <a href="/cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+            <div id="nav-user-menu" style="display:none; align-items:center; gap:10px">
+                <span style="color:var(--text-secondary);font-size:.9rem">Hi, <strong id="nav-user-name"
+                        style="color:var(--gold)"></strong></span>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+            </div>
+            <a href="/login.html" class="btn-nav-login" id="nav-login-btn">Login</a>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-header" style="padding-bottom:24px">
+        <div class="page-breadcrumb"><a href="/">Home</a><span class="sep">›</span><a
+                href="/products.html">Products</a><span class="sep">›</span><span id="bread-name">Product</span></div>
+    </div>
+
+    <div class="product-detail-grid" id="product-detail">
+        <div class="loading-state" style="grid-column:1/-1">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="related-products">
+        <div class="section-header" style="text-align:left; margin-bottom:28px">
+            <div class="section-label">You May Also Like</div>
+            <h2 class="section-title">Related Products</h2>
+            <div class="divider" style="margin:12px 0 0"></div>
+        </div>
+        <div class="products-grid" id="related-grid"></div>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="navbar-brand" style="position:static">
+                    <div class="brand-icon">🛍️</div>Abdullah<span style="color:var(--text-primary)">Store</span>
+                </div>
+                <p class="footer-brand-desc">Premium products, unbeatable prices.</p>
+            </div>
+            <div>
+                <div class="footer-heading">Navigation</div>
+                <div class="footer-links"><a href="/">Home</a><a href="/products.html">Products</a><a
+                        href="/cart.html">Cart</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Contact</div>
+                <div class="footer-links"><a href="mailto:info@abdullahstore.com">📧 info@abdullahstore.com</a><a
+                        href="#">📍 Lahore, Pakistan</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Support</div>
+                <div class="footer-links"><a href="#">FAQ</a><a href="#">Returns Policy</a><a href="#">Track Order</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom"><span>© 2024 Abdullah Store</span><span>🇵🇰</span></div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script>
+        let qty = 1;
+        let product = null;
+
+        async function loadProduct() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) { window.location.href = '/products.html'; return; }
+            try {
+                product = await api.get(`/products/${id}`);
+                document.title = `${product.name} — Abdullah Store`;
+                document.getElementById('bread-name').textContent = product.name;
+                renderProduct(product);
+                loadRelated(product.category_id, product.id);
+            } catch {
+                document.getElementById('product-detail').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">❌</div><h3>Product not found</h3><a href="/products.html" class="btn btn-secondary" style="margin-top:16px">Back to Products</a></div>`;
+            }
+        }
+
+        function renderProduct(p) {
+            const discount = getDiscount(p.price, p.original_price);
+            document.getElementById('product-detail').innerHTML = `
+      <div>
+        <div class="product-main-img">
+          <img src="${p.image || 'https://via.placeholder.com/500x400'}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/500x400?text=Product'">
+        </div>
+      </div>
+      <div>
+        <div class="product-detail-badge">${p.category_name || 'General'}</div>
+        ${discount ? `<span class="badge badge-gold" style="margin-left:8px">${discount}</span>` : ''}
+        <h1 class="product-detail-name">${p.name}</h1>
+        <div class="product-detail-meta">
+          <div class="product-rating" style="font-size:1rem">
+            <span class="stars">${renderStars(p.rating || 4)}</span>
+            <span style="color:var(--gold); font-weight:700; margin-left:4px">${p.rating}</span>
+            <span style="color:var(--text-muted)"> (${p.reviews_count || 0} reviews)</span>
+          </div>
+          <span class="stock-status ${p.stock > 0 ? 'in-stock' : 'out-stock'}">${p.stock > 0 ? `✅ In Stock (${p.stock})` : '❌ Out of Stock'}</span>
+        </div>
+        <div style="margin-bottom:20px">
+          <span class="detail-price">${formatPrice(p.price)}</span>
+          ${p.original_price ? `<span class="detail-original">${formatPrice(p.original_price)}</span>` : ''}
+        </div>
+        <p class="product-desc">${p.description || 'No description available.'}</p>
+        <div class="qty-selector">
+          <span style="font-weight:600; color:var(--text-secondary)">Quantity:</span>
+          <div style="display:flex; align-items:center; gap:12px; background:var(--dark-card2); border-radius:8px; padding:6px 12px; border:1px solid var(--dark-border)">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <span class="qty-value" id="qty-display">1</span>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+        <div class="product-action-btns">
+          <button class="btn btn-primary btn-lg" onclick="addToCartDetail()" ${p.stock <= 0 ? 'disabled' : ''}>🛒 Add to Cart</button>
+          <button class="btn btn-secondary btn-lg" onclick="toggleWishlist(${p.id}, '${p.name.replace(/'/g, "\\'")}', '${p.image}', ${p.price})">${isWishlisted(p.id) ? '❤️ Wishlisted' : '🤍 Wishlist'}</button>
+          <a href="/checkout.html" class="btn btn-secondary btn-lg">⚡ Buy Now</a>
+        </div>
+        <div style="margin-top:28px; padding:20px; background:var(--dark-card2); border-radius:var(--radius); border:1px solid var(--dark-border)">
+          <div style="display:flex; gap:24px; flex-wrap:wrap">
+            <div style="font-size:0.85rem; color:var(--text-secondary)">🚚 <strong style="color:var(--text-primary)">Free Delivery</strong><br>Orders above ₨2000</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary)">🔄 <strong style="color:var(--text-primary)">Easy Returns</strong><br>30-day return policy</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary)">🔒 <strong style="color:var(--text-primary)">Secure Payment</strong><br>100% encrypted</div>
+          </div>
+        </div>
+      </div>
+    `;
+        }
+
+        function changeQty(delta) {
+            qty = Math.max(1, Math.min(10, qty + delta));
+            document.getElementById('qty-display').textContent = qty;
+        }
+
+        async function addToCartDetail() {
+            if (!product) return;
+            for (let i = 0; i < qty; i++) {
+                await addToCart(product.id, product.name, product.price, product.image);
+            }
+        }
+
+        async function loadRelated(catId, excludeId) {
+            try {
+                const related = await api.get(`/products?category=${catId}`);
+                const filtered = related.filter(p => p.id != excludeId).slice(0, 4);
+                document.getElementById('related-grid').innerHTML = filtered.map(p => renderProductCard(p)).join('');
+            } catch { }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProduct);
+    </script>
+</body>
+
+</html>

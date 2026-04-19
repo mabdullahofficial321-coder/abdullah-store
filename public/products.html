@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — Abdullah Store</title>
+    <meta name="description" content="Browse all products at Abdullah Store. Filter by category, price, and rating.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <style>
+        .products-page-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 28px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 80px;
+        }
+
+        @media(max-width:900px) {
+            .products-page-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel {
+                position: static;
+            }
+        }
+
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .results-count {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .active-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .active-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 166, 35, 0.1);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: var(--gold);
+        }
+
+        .active-filter-tag .remove {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .active-filter-tag .remove:hover {
+            opacity: 1;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .price-inputs input {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="brand-icon">🛍️</div>Abdullah<span>Store</span>
+        </a>
+        <ul class="navbar-nav" id="navbar-nav">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/products.html" class="nav-link active">Products</a></li>
+            <li><a href="/dashboard.html" class="nav-link" id="nav-admin-link" style="display:none">Dashboard</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <a href="/cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+            <div id="nav-user-menu" style="display:none; align-items:center; gap:10px">
+                <span style="color:var(--text-secondary);font-size:.9rem">Hi, <strong id="nav-user-name"
+                        style="color:var(--gold)"></strong></span>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+            </div>
+            <a href="/login.html" class="btn-nav-login" id="nav-login-btn">Login</a>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">All Products</h1>
+        <div class="page-breadcrumb"><a href="/">Home</a><span class="sep">›</span><span>Products</span></div>
+    </div>
+
+    <div class="products-page-layout">
+
+        <!-- Sidebar Filters -->
+        <aside>
+            <div class="filter-panel">
+                <div class="filter-title">🔍 Filters</div>
+
+                <!-- Search -->
+                <div class="filter-section">
+                    <div class="filter-section-title">Search</div>
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-control" id="search-input" placeholder="Search products..."
+                            oninput="applyFilters()">
+                    </div>
+                </div>
+
+                <!-- Category -->
+                <div class="filter-section">
+                    <div class="filter-section-title">Category</div>
+                    <div id="category-filters"></div>
+                </div>
+
+                <!-- Price Range -->
+                <div class="filter-section">
+                    <div class="filter-section-title">Price Range</div>
+                    <div class="price-inputs">
+                        <input type="number" class="form-control" id="min-price" placeholder="Min ₨"
+                            oninput="applyFilters()">
+                        <span style="color:var(--text-muted)">—</span>
+                        <input type="number" class="form-control" id="max-price" placeholder="Max ₨"
+                            oninput="applyFilters()">
+                    </div>
+                </div>
+
+                <!-- Rating Filter -->
+                <div class="filter-section">
+                    <div class="filter-section-title">Min Rating</div>
+                    <div>
+                        <label class="filter-option"><input type="radio" name="rating" value=""
+                                onchange="applyFilters()" checked> All Ratings</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="4.5"
+                                onchange="applyFilters()"> ★★★★★ 4.5+</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="4"
+                                onchange="applyFilters()"> ★★★★ 4.0+</label>
+                        <label class="filter-option"><input type="radio" name="rating" value="3"
+                                onchange="applyFilters()"> ★★★ 3.0+</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary btn-full" onclick="clearFilters()">Clear All Filters</button>
+            </div>
+        </aside>
+
+        <!-- Products -->
+        <main>
+            <div class="sort-bar">
+                <div class="results-count" id="results-count">Loading...</div>
+                <select class="form-control" style="width:auto; min-width:180px" id="sort-select"
+                    onchange="applyFilters()">
+                    <option value="">Default</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="rating">Best Rated</option>
+                    <option value="newest">Newest First</option>
+                </select>
+            </div>
+            <div class="active-filters" id="active-filters"></div>
+            <div class="products-grid" id="products-grid">
+                <div class="loading-state" style="grid-column:1/-1">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="navbar-brand" style="position:static">
+                    <div class="brand-icon">🛍️</div>Abdullah<span style="color:var(--text-primary)">Store</span>
+                </div>
+                <p class="footer-brand-desc">Premium products, unbeatable prices.</p>
+            </div>
+            <div>
+                <div class="footer-heading">Quick Links</div>
+                <div class="footer-links"><a href="/">Home</a><a href="/products.html">Products</a><a
+                        href="/cart.html">Cart</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Contact</div>
+                <div class="footer-links"><a href="mailto:info@abdullahstore.com">📧 info@abdullahstore.com</a><a
+                        href="#">📍 Lahore, Pakistan</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Categories</div>
+                <div class="footer-links" id="footer-cats"></div>
+            </div>
+        </div>
+        <div class="footer-bottom"><span>© 2024 Abdullah Store</span><span>🇵🇰 Made in Pakistan</span></div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script>
+        let allProducts = [];
+        let allCategories = [];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let selectedCategory = urlParams.get('category') || '';
+        let featuredOnly = urlParams.get('featured') === '1';
+
+        async function init() {
+            const [prods, cats] = await Promise.all([api.get('/products'), api.get('/categories')]);
+            allProducts = prods;
+            allCategories = cats;
+            buildCategoryFilters(cats);
+            buildFooterCats(cats);
+            applyFilters();
+        }
+
+        function buildCategoryFilters(cats) {
+            const el = document.getElementById('category-filters');
+            el.innerHTML = `<label class="filter-option"><input type="radio" name="cat" value="" onchange="selectedCategory='';applyFilters()" ${!selectedCategory ? 'checked' : ''}> All Categories</label>` +
+                cats.map(c => `<label class="filter-option"><input type="radio" name="cat" value="${c.id}" onchange="selectedCategory='${c.id}';applyFilters()" ${selectedCategory == c.id ? 'checked' : ''}> ${c.icon} ${c.name}</label>`).join('');
+        }
+
+        function buildFooterCats(cats) {
+            const el = document.getElementById('footer-cats');
+            if (el) el.innerHTML = cats.map(c => `<a href="/products.html?category=${c.id}">${c.icon} ${c.name}</a>`).join('');
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+            const sort = document.getElementById('sort-select').value;
+            const minRating = parseFloat(document.querySelector('input[name="rating"]:checked')?.value) || 0;
+
+            let filtered = [...allProducts];
+            if (selectedCategory) filtered = filtered.filter(p => p.category_id == selectedCategory);
+            if (featuredOnly) filtered = filtered.filter(p => p.featured);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search));
+            if (minPrice) filtered = filtered.filter(p => p.price >= minPrice);
+            if (maxPrice < Infinity) filtered = filtered.filter(p => p.price <= maxPrice);
+            if (minRating) filtered = filtered.filter(p => (p.rating || 0) >= minRating);
+
+            if (sort === 'price_asc') filtered.sort((a, b) => a.price - b.price);
+            else if (sort === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+            else if (sort === 'rating') filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            else if (sort === 'newest') filtered.sort((a, b) => b.id - a.id);
+
+            renderProducts(filtered);
+            document.getElementById('results-count').textContent = `${filtered.length} product${filtered.length !== 1 ? 's' : ''} found`;
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            if (!products.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>No products found</h3><p>Try adjusting your filters or search term</p><button class="btn btn-secondary" onclick="clearFilters()" style="margin-top:16px">Clear Filters</button></div>`;
+                return;
+            }
+            grid.innerHTML = products.map(p => renderProductCard(p)).join('');
+        }
+
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('min-price').value = '';
+            document.getElementById('max-price').value = '';
+            document.getElementById('sort-select').value = '';
+            document.querySelector('input[name="rating"]').checked = true;
+            selectedCategory = ''; featuredOnly = false;
+            document.querySelectorAll('input[name="cat"]')[0].checked = true;
+            applyFilters();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

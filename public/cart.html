@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart — Abdullah Store</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <style>
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem 80px;
+            align-items: start;
+        }
+
+        @media(max-width: 840px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                position: static;
+            }
+        }
+
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="brand-icon">🛍️</div>Abdullah<span>Store</span>
+        </a>
+        <ul class="navbar-nav" id="navbar-nav">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/products.html" class="nav-link">Products</a></li>
+            <li><a href="/dashboard.html" class="nav-link" id="nav-admin-link" style="display:none">Dashboard</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <a href="/cart.html" class="cart-btn" style="color:var(--gold); border-color:var(--gold)">🛒 Cart <span
+                    class="cart-count" style="display:none">0</span></a>
+            <div id="nav-user-menu" style="display:none; align-items:center; gap:10px">
+                <span style="color:var(--text-secondary);font-size:.9rem">Hi, <strong id="nav-user-name"
+                        style="color:var(--gold)"></strong></span>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+            </div>
+            <a href="/login.html" class="btn-nav-login" id="nav-login-btn">Login</a>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">🛒 My Cart</h1>
+        <div class="page-breadcrumb"><a href="/">Home</a><span class="sep">›</span><span>Cart</span></div>
+    </div>
+
+    <div class="cart-layout">
+        <div>
+            <div id="cart-items" class="cart-items">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        <aside class="order-summary card">
+            <h3
+                style="font-size:1.1rem; font-weight:700; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--dark-border)">
+                Order Summary</h3>
+            <div id="summary-rows"></div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span class="total-amount" id="cart-total">₨0</span>
+            </div>
+            <a href="/checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-top:20px"
+                id="checkout-btn">Proceed to Checkout →</a>
+            <a href="/products.html" class="btn btn-secondary btn-full" style="margin-top:12px">← Continue Shopping</a>
+            <div
+                style="margin-top:20px; padding:14px; background:var(--dark-card2); border-radius:var(--radius-sm); font-size:0.8rem; color:var(--text-muted)">
+                🔒 Secure checkout &nbsp;·&nbsp; 🚚 Free delivery above ₨2000 &nbsp;·&nbsp; 🔄 Easy returns
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="navbar-brand" style="position:static">
+                    <div class="brand-icon">🛍️</div>Abdullah<span style="color:var(--text-primary)">Store</span>
+                </div>
+                <p class="footer-brand-desc">Premium products at best prices.</p>
+            </div>
+            <div>
+                <div class="footer-heading">Links</div>
+                <div class="footer-links"><a href="/">Home</a><a href="/products.html">Products</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Contact</div>
+                <div class="footer-links"><a href="mailto:info@abdullahstore.com">📧 info@abdullahstore.com</a></div>
+            </div>
+            <div>
+                <div class="footer-heading">Help</div>
+                <div class="footer-links"><a href="#">Returns</a><a href="#">Track Order</a></div>
+            </div>
+        </div>
+        <div class="footer-bottom"><span>© 2024 Abdullah Store</span><span>🇵🇰</span></div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script>
+        let cartItems = [];
+
+        async function loadCart() {
+            const el = document.getElementById('cart-items');
+            if (isLoggedIn()) {
+                try { cartItems = await api.get('/cart'); } catch { cartItems = getLocalCart(); }
+            } else { cartItems = getLocalCart(); }
+            renderCart();
+        }
+
+        function renderCart() {
+            const el = document.getElementById('cart-items');
+            if (!cartItems.length) {
+                el.innerHTML = `<div class="empty-state" style="padding:80px 20px"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Looks like you haven't added anything yet.</p><a href="/products.html" class="btn btn-primary" style="margin-top:20px">Start Shopping →</a></div>`;
+                updateSummary([]);
+                document.getElementById('checkout-btn').style.pointerEvents = 'none';
+                document.getElementById('checkout-btn').style.opacity = '0.4';
+                return;
+            }
+
+            el.innerHTML = cartItems.map(item => `
+      <div class="cart-item" id="cart-row-${item.id}">
+        <img src="${item.image || 'https://via.placeholder.com/90x80'}" alt="${item.name}" class="cart-item-img" onerror="this.src='https://via.placeholder.com/90x80?text=Item'">
+        <div>
+          <div class="cart-item-name"><a href="/product-detail.html?id=${item.product_id}">${item.name}</a></div>
+          <div class="cart-item-price">${formatPrice(item.price)}</div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="updateQty(${item.id}, ${item.quantity - 1}, ${item.product_id})">−</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button class="qty-btn" onclick="updateQty(${item.id}, ${item.quantity + 1}, ${item.product_id})">+</button>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700; font-size:1.1rem; color:var(--gold)">${formatPrice(item.price * item.quantity)}</div>
+          <button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="removeItem(${item.id})">🗑️ Remove</button>
+        </div>
+      </div>
+    `).join('');
+
+            updateSummary(cartItems);
+        }
+
+        async function updateQty(id, newQty, productId) {
+            if (newQty < 1) { await removeItem(id); return; }
+            if (isLoggedIn()) {
+                try { await api.put(`/cart/${id}`, { quantity: newQty }); await loadCart(); }
+                catch (err) { showToast(err.message, 'error'); }
+            } else {
+                let cart = getLocalCart();
+                const idx = cart.findIndex(i => i.id === id);
+                if (idx >= 0) { cart[idx].quantity = newQty; saveLocalCart(cart); cartItems = cart; renderCart(); }
+            }
+        }
+
+        async function removeItem(id) {
+            if (isLoggedIn()) {
+                try { await api.delete(`/cart/${id}`); await loadCart(); showToast('Item removed', 'info'); }
+                catch (err) { showToast(err.message, 'error'); }
+            } else {
+                let cart = getLocalCart().filter(i => i.id !== id);
+                saveLocalCart(cart); cartItems = cart; renderCart();
+                showToast('Item removed', 'info');
+            }
+            updateCartBadge();
+        }
+
+        function updateSummary(items) {
+            const subtotal = items.reduce((s, i) => s + (i.price * i.quantity), 0);
+            const delivery = subtotal >= 2000 ? 0 : 150;
+            const total = subtotal + delivery;
+            document.getElementById('summary-rows').innerHTML = `
+      <div class="summary-row"><span>Subtotal (${items.length} items)</span><span>${formatPrice(subtotal)}</span></div>
+      <div class="summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success)">Free</span>' : formatPrice(150)}</span></div>
+    `;
+            document.getElementById('cart-total').textContent = formatPrice(total);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+
+</html>

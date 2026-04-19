@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — Abdullah Store</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <style>
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem 80px;
+            align-items: start;
+        }
+
+        @media(max-width:840px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                position: static;
+            }
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 32px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--dark-card2);
+            border: 2px solid var(--dark-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step.active .step-num {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #000;
+        }
+
+        .step.done .step-num {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--dark-border);
+            margin: 0 8px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 10px;
+        }
+
+        .payment-option:hover {
+            border-color: var(--gold);
+            background: rgba(245, 166, 35, 0.03);
+        }
+
+        .payment-option.selected {
+            border-color: var(--gold);
+            background: rgba(245, 166, 35, 0.07);
+        }
+
+        .success-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-box {
+            background: var(--dark-card);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            max-width: 460px;
+            animation: fadeInUp 0.5s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="brand-icon">🛍️</div>Abdullah<span>Store</span>
+        </a>
+        <ul class="navbar-nav" id="navbar-nav">
+            <li><a href="/" class="nav-link">Home</a></li>
+            <li><a href="/products.html" class="nav-link">Products</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <a href="/cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+            <div id="nav-user-menu" style="display:none; align-items:center; gap:10px">
+                <span style="color:var(--text-secondary);font-size:.9rem">Hi, <strong id="nav-user-name"
+                        style="color:var(--gold)"></strong></span>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+            </div>
+            <a href="/login.html" class="btn-nav-login" id="nav-login-btn">Login</a>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">🔒 Secure Checkout</h1>
+        <div class="page-breadcrumb"><a href="/">Home</a><span class="sep">›</span><a href="/cart.html">Cart</a><span
+                class="sep">›</span><span>Checkout</span></div>
+    </div>
+
+    <div class="checkout-layout">
+        <div>
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-num">1</div><span style="font-weight:600; font-size:0.9rem">Shipping</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step2">
+                    <div class="step-num">2</div><span style="font-weight:600; font-size:0.9rem">Payment</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">
+                    <div class="step-num">3</div><span style="font-weight:600; font-size:0.9rem">Review</span>
+                </div>
+            </div>
+
+            <form id="checkout-form" onsubmit="placeOrder(event)">
+                <div class="card" style="margin-bottom:24px">
+                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:20px">📦 Shipping Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="s-name" placeholder="Muhammad Abdullah"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="s-phone" placeholder="+92 300 1234567" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" class="form-control" id="s-email" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delivery Address *</label>
+                        <textarea class="form-control" id="s-address" rows="3"
+                            placeholder="House #, Street, Area, City, Province" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" id="s-city" placeholder="Lahore">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="s-postal" placeholder="54000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:20px">💳 Payment Method</h3>
+                    <div class="payment-option selected" onclick="selectPayment('cod')">
+                        <input type="radio" name="payment" value="cod" checked id="pay-cod">
+                        <label for="pay-cod" style="cursor:pointer; flex:1">
+                            <strong>💵 Cash on Delivery</strong>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:3px">Pay when your order
+                                arrives</div>
+                        </label>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('easypaisa')">
+                        <input type="radio" name="payment" value="easypaisa" id="pay-ep">
+                        <label for="pay-ep" style="cursor:pointer; flex:1">
+                            <strong>📱 EasyPaisa</strong>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:3px">Mobile wallet
+                                payment</div>
+                        </label>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('jazzcash')">
+                        <input type="radio" name="payment" value="jazzcash" id="pay-jc">
+                        <label for="pay-jc" style="cursor:pointer; flex:1">
+                            <strong>📲 JazzCash</strong>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:3px">Mobile wallet
+                                payment</div>
+                        </label>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('bank')">
+                        <input type="radio" name="payment" value="bank" id="pay-bank">
+                        <label for="pay-bank" style="cursor:pointer; flex:1">
+                            <strong>🏦 Bank Transfer</strong>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:3px">Direct bank payment
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg" id="place-order-btn"
+                        style="margin-top:24px">
+                        🛒 Place Order
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <aside class="order-summary card">
+            <h3
+                style="font-size:1.1rem; font-weight:700; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--dark-border)">
+                Your Order</h3>
+            <div id="checkout-items" style="margin-bottom:20px; display:flex; flex-direction:column; gap:12px"></div>
+            <div id="checkout-summary-rows"></div>
+            <div class="summary-total" style="margin-top:12px">
+                <span>Total</span>
+                <span class="total-amount" id="checkout-total">₨0</span>
+            </div>
+            <div
+                style="margin-top:16px; padding:12px; background:var(--dark-card2); border-radius:8px; font-size:0.78rem; color:var(--text-muted); text-align:center">
+                🔒 Your information is 100% secure and encrypted
+            </div>
+        </aside>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-box">
+            <div style="font-size:4rem; margin-bottom:16px">🎉</div>
+            <h2
+                style="font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:12px; color:var(--success)">
+                Order Placed!</h2>
+            <p style="color:var(--text-secondary); margin-bottom:8px">Your order has been placed successfully.</p>
+            <p id="order-id-display" style="color:var(--gold); font-weight:700; font-size:1.1rem; margin-bottom:24px">
+            </p>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:28px">You will receive a confirmation
+                call within 24 hours. Thank you for shopping with Abdullah Store! 🇵🇰</p>
+            <a href="/products.html" class="btn btn-primary btn-lg btn-full">Continue Shopping →</a>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/cart.js"></script>
+    <script>
+        let checkoutItems = [];
+
+        function selectPayment(type) {
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.querySelector(`input[value="${type}"]`).checked = true;
+        }
+
+        async function loadCheckoutCart() {
+            if (isLoggedIn()) {
+                try { checkoutItems = await api.get('/cart'); } catch { checkoutItems = getLocalCart(); }
+            } else { checkoutItems = getLocalCart(); }
+
+            if (!checkoutItems.length) { window.location.href = '/cart.html'; return; }
+
+            // Prefill user info
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('s-name').value = user.name || '';
+                document.getElementById('s-email').value = user.email || '';
+            }
+
+            renderCheckoutItems();
+        }
+
+        function renderCheckoutItems() {
+            const el = document.getElementById('checkout-items');
+            el.innerHTML = checkoutItems.map(item => `
+      <div style="display:flex; gap:12px; align-items:center; font-size:0.85rem">
+        <img src="${item.image || ''}" style="width:44px; height:40px; border-radius:6px; object-fit:cover; background:var(--dark-card2)" onerror="this.style.display='none'">
+        <div style="flex:1"><div style="font-weight:600">${item.name}</div><div style="color:var(--text-muted)">Qty: ${item.quantity}</div></div>
+        <div style="color:var(--gold); font-weight:700">${formatPrice(item.price * item.quantity)}</div>
+      </div>
+    `).join('');
+
+            const subtotal = checkoutItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+            const delivery = subtotal >= 2000 ? 0 : 150;
+            document.getElementById('checkout-summary-rows').innerHTML = `
+      <div class="summary-row"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>
+      <div class="summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success)">Free</span>' : formatPrice(150)}</span></div>
+    `;
+            document.getElementById('checkout-total').textContent = formatPrice(subtotal + delivery);
+        }
+
+        async function placeOrder(e) {
+            e.preventDefault();
+            const btn = document.getElementById('place-order-btn');
+            btn.disabled = true; btn.textContent = 'Placing Order...';
+
+            const items = checkoutItems.map(i => ({ product_id: i.product_id || i.id, price: i.price, quantity: i.quantity }));
+            const payment = document.querySelector('input[name="payment"]:checked').value;
+
+            if (!isLoggedIn()) {
+                showToast('Please login to place an order', 'info');
+                setTimeout(() => window.location.href = '/login.html', 1500);
+                btn.disabled = false; btn.textContent = '🛒 Place Order';
+                return;
+            }
+
+            try {
+                const result = await api.post('/orders', {
+                    shipping_name: document.getElementById('s-name').value,
+                    shipping_email: document.getElementById('s-email').value,
+                    shipping_phone: document.getElementById('s-phone').value,
+                    shipping_address: `${document.getElementById('s-address').value}, ${document.getElementById('s-city').value} ${document.getElementById('s-postal').value}`,
+                    payment_method: payment,
+                    items
+                });
+                document.getElementById('order-id-display').textContent = `Order ID: #${result.order_id}`;
+                document.getElementById('success-overlay').style.display = 'flex';
+                localStorage.removeItem('cart');
+                updateCartBadge();
+            } catch (err) {
+                showToast(err.message || 'Failed to place order', 'error');
+                btn.disabled = false; btn.textContent = '🛒 Place Order';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCheckoutCart);
+    </script>
+</body>
+
+</html>
